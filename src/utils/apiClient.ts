@@ -1,7 +1,16 @@
 export async function postJson<T = any>(endpoint: string, body: any): Promise<T> {
+  // Ensure the endpoint always has the leading /api/ prefix
+  let targetUrl = endpoint.trim();
+  if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+    if (!targetUrl.startsWith('/api/') && targetUrl !== '/api') {
+      const cleanPath = targetUrl.startsWith('/') ? targetUrl.slice(1) : targetUrl;
+      targetUrl = `/api/${cleanPath}`;
+    }
+  }
+
   let response: Response;
   try {
-    response = await fetch(endpoint, {
+    response = await fetch(targetUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

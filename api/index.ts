@@ -1,7 +1,8 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
-import { AoDaiAnalysisResult } from '../src/types/aodai';
+import type { AoDaiAnalysisResult } from '../src/types/aodai.ts';
 
 dotenv.config();
 
