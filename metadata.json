@@ -1,0 +1,6 @@
+{
+  "name": "Họa Sắc Áo Dài - Thẩm Định Bố Cục Chuẩn V2.1",
+  "description": "Ứng dụng phân tích và đánh giá chuyên sâu bố cục họa tiết vẽ tay trên áo dài theo chuẩn mực V2.1 với AI thị giác.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
