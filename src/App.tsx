@@ -22,7 +22,7 @@ import {
   ArrowRightLeft,
   BookOpen
 } from 'lucide-react';
-import { postJson } from './utils/apiClient';
+import { postJson, analyzeAoDaiApi, compareAoDaiApi, API_ENDPOINTS } from './utils/apiClient';
 import { optimizeImageForUpload } from './utils/imageCompressor';
 
 export default function App() {
@@ -69,11 +69,7 @@ export default function App() {
 
     try {
       const { dataUrl, mimeType: optMime } = await optimizeImageForUpload(imageBase64);
-      const data = await postJson<{ success: boolean; data: AoDaiAnalysisResult }>('/api/analyze-aodai', {
-        imageBase64: dataUrl,
-        mimeType: optMime,
-        note,
-      });
+      const data = await analyzeAoDaiApi(dataUrl, optMime, note);
 
       setResult(data.data);
       setActiveTab('overview');
@@ -186,11 +182,7 @@ ${result.verdict.overallConclusion}
 
           try {
             const { dataUrl, mimeType: optMime } = await optimizeImageForUpload(slot.imageUrl);
-            const data = await postJson<{ success: boolean; data: AoDaiAnalysisResult }>('/api/analyze-aodai', {
-              imageBase64: dataUrl,
-              mimeType: optMime,
-              note: slot.note || '',
-            });
+            const data = await analyzeAoDaiApi(dataUrl, optMime, slot.note || '');
             return { ...slot, result: data.data };
           } catch (slotErr: any) {
             console.error(`Error analyzing slot ${slot.id}:`, slotErr);
@@ -210,9 +202,7 @@ ${result.verdict.overallConclusion}
           result: s.result,
         }));
 
-      const compData = await postJson<{ success: boolean; data: ComparisonSynthesis }>('/api/compare-aodai', {
-        items: comparePayload,
-      });
+      const compData = await compareAoDaiApi(comparePayload);
 
       setComparisonSynthesis(compData.data);
     } catch (err: any) {

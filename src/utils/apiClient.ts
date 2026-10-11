@@ -1,3 +1,11 @@
+import { AoDaiAnalysisResult, ComparisonSynthesis } from '../types/aodai';
+
+export const API_ENDPOINTS = {
+  ANALYZE_AODAI: '/api/analyze-aodai',
+  COMPARE_AODAI: '/api/compare-aodai',
+  HEALTH: '/api/health',
+} as const;
+
 export async function postJson<T = any>(endpoint: string, body: any): Promise<T> {
   // Ensure the endpoint always has the leading /api/ prefix
   let targetUrl = endpoint.trim();
@@ -31,7 +39,7 @@ export async function postJson<T = any>(endpoint: string, body: any): Promise<T>
 
     if (response.status === 404) {
       throw new Error(
-        `Không tìm thấy endpoint (${endpoint} - HTTP 404). Trên Vercel, hãy đảm bảo file vercel.json và api/index.ts đã được deploy cùng nhau.`
+        `Không tìm thấy endpoint (${targetUrl} - HTTP 404). Trên Vercel, hãy đảm bảo file vercel.json và api/index.ts đã được deploy cùng nhau.`
       );
     }
     if (response.status === 504) {
@@ -63,4 +71,24 @@ export async function postJson<T = any>(endpoint: string, body: any): Promise<T>
   }
 
   return data;
+}
+
+/**
+ * Helper to analyze a single Ao Dai layout image
+ */
+export async function analyzeAoDaiApi(imageBase64: string, mimeType: string, note?: string) {
+  return postJson<{ success: boolean; data: AoDaiAnalysisResult }>(API_ENDPOINTS.ANALYZE_AODAI, {
+    imageBase64,
+    mimeType,
+    note: note || '',
+  });
+}
+
+/**
+ * Helper to compare multiple Ao Dai layout results
+ */
+export async function compareAoDaiApi(items: Array<{ id: string; label: string; result: any }>) {
+  return postJson<{ success: boolean; data: ComparisonSynthesis }>(API_ENDPOINTS.COMPARE_AODAI, {
+    items,
+  });
 }

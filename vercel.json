@@ -7,8 +7,20 @@
   },
   "rewrites": [
     {
+      "source": "/api/analyze-aodai",
+      "destination": "/api/analyze-aodai"
+    },
+    {
+      "source": "/api/compare-aodai",
+      "destination": "/api/compare-aodai"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/health"
+    },
+    {
       "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "destination": "/api/index"
     },
     {
       "source": "/(.*)",

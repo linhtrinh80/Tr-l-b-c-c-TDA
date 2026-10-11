@@ -94,7 +94,7 @@ Chỉ trả về chuỗi JSON thuần (không có markdown backticks bao ngoài)
 `;
 
 // Helper handler for analyzing Ao Dai
-async function handleAnalyzeAoDai(req: Request, res: Response) {
+export async function handleAnalyzeAoDai(req: Request, res: Response) {
   try {
     const { imageBase64, mimeType = 'image/jpeg', note = '' } = req.body;
 
@@ -256,7 +256,7 @@ ${note ? `Ghi chú bổ sung từ người dùng: ${note}` : ''}
 }
 
 // Helper handler for comparing Ao Dai layouts
-async function handleCompareAoDai(req: Request, res: Response) {
+export async function handleCompareAoDai(req: Request, res: Response) {
   try {
     const { items } = req.body;
 
@@ -343,7 +343,13 @@ Trả về định dạng JSON thuần không có markdown backticks bao ngoài.
   }
 }
 
-// Health checks (both with and without /api prefix)
+// Health checks
+app.get('/', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', service: 'Hoa Sac Ao Dai AI Analyzer', version: '2.1' });
+});
+app.get('/api', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', service: 'Hoa Sac Ao Dai AI Analyzer', version: '2.1' });
+});
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', service: 'Hoa Sac Ao Dai AI Analyzer', version: '2.1' });
 });
