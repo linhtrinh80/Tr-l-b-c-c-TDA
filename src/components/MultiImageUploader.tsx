@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Upload, Plus, Trash2, Wand2, Sparkles, Image as ImageIcon, ArrowRightLeft, Layers } from 'lucide-react';
 import { ComparisonSlot, SampleImage } from '../types/aodai';
 import { SAMPLE_AODAI_LIST } from '../data/sampleAoDai';
+import { optimizeImageForUpload } from '../utils/imageCompressor';
 
 interface MultiImageUploaderProps {
   slots: ComparisonSlot[];
@@ -31,11 +32,12 @@ export const MultiImageUploader: React.FC<MultiImageUploaderProps> = ({
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
+    reader.onload = async (e) => {
+      const rawResult = e.target?.result as string;
+      const { dataUrl, mimeType: optMime } = await optimizeImageForUpload(rawResult);
       onUpdateSlot(slotId, {
-        imageUrl: result,
-        mimeType: file.type,
+        imageUrl: dataUrl,
+        mimeType: optMime,
       });
     };
     reader.readAsDataURL(file);

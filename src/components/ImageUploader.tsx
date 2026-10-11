@@ -2,6 +2,7 @@ import React, { useState, useRef, DragEvent, ChangeEvent } from 'react';
 import { Upload, Image as ImageIcon, Sparkles, Eye, Grid, Wand2, HelpCircle } from 'lucide-react';
 import { SAMPLE_AODAI_LIST } from '../data/sampleAoDai';
 import { SampleImage } from '../types/aodai';
+import { optimizeImageForUpload } from '../utils/imageCompressor';
 
 interface ImageUploaderProps {
   onAnalyze: (imageBase64: string, mimeType: string, note: string) => Promise<void>;
@@ -24,10 +25,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onAnalyze, isLoadi
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setSelectedImage(result);
-      setMimeType(file.type);
+    reader.onload = async (e) => {
+      const rawResult = e.target?.result as string;
+      const { dataUrl, mimeType: optMime } = await optimizeImageForUpload(rawResult);
+      setSelectedImage(dataUrl);
+      setMimeType(optMime);
       setActivePresetId(''); // custom upload
     };
     reader.readAsDataURL(file);

@@ -22,6 +22,8 @@ import {
   ArrowRightLeft,
   BookOpen
 } from 'lucide-react';
+import { postJson } from './utils/apiClient';
+import { optimizeImageForUpload } from './utils/imageCompressor';
 
 export default function App() {
   const [appMode, setAppMode] = useState<'single' | 'compare'>('single');
@@ -66,17 +68,12 @@ export default function App() {
     setCurrentImage(imageBase64);
 
     try {
-      const response = await fetch('/api/analyze-aodai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64, mimeType, note }),
+      const { dataUrl, mimeType: optMime } = await optimizeImageForUpload(imageBase64);
+      const data = await postJson<{ success: boolean; data: AoDaiAnalysisResult }>('/api/analyze-aodai', {
+        imageBase64: dataUrl,
+        mimeType: optMime,
+        note,
       });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Đã xảy ra lỗi trong quá trình thẩm định hình ảnh.');
-      }
 
       setResult(data.data);
       setActiveTab('overview');
@@ -188,19 +185,12 @@ ${result.verdict.overallConclusion}
           if (slot.result) return slot; // already evaluated
 
           try {
-            const resp = await fetch('/api/analyze-aodai', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                imageBase64: slot.imageUrl,
-                mimeType: slot.mimeType || 'image/jpeg',
-                note: slot.note || '',
-              }),
+            const { dataUrl, mimeType: optMime } = await optimizeImageForUpload(slot.imageUrl);
+            const data = await postJson<{ success: boolean; data: AoDaiAnalysisResult }>('/api/analyze-aodai', {
+              imageBase64: dataUrl,
+              mimeType: optMime,
+              note: slot.note || '',
             });
-            const data = await resp.json();
-            if (!resp.ok || !data.success) {
-              throw new Error(data.error || `Lỗi thẩm định ${slot.label}`);
-            }
             return { ...slot, result: data.data };
           } catch (slotErr: any) {
             console.error(`Error analyzing slot ${slot.id}:`, slotErr);
@@ -220,16 +210,9 @@ ${result.verdict.overallConclusion}
           result: s.result,
         }));
 
-      const compResp = await fetch('/api/compare-aodai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: comparePayload }),
+      const compData = await postJson<{ success: boolean; data: ComparisonSynthesis }>('/api/compare-aodai', {
+        items: comparePayload,
       });
-
-      const compData = await compResp.json();
-      if (!compResp.ok || !compData.success) {
-        throw new Error(compData.error || 'Đã xảy ra lỗi trong quá trình tổng hợp so sánh.');
-      }
 
       setComparisonSynthesis(compData.data);
     } catch (err: any) {
